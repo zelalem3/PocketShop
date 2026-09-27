@@ -6,8 +6,10 @@ import {
   View, 
   ScrollView, 
   TouchableOpacity, 
-  SafeAreaView 
+  SafeAreaView,
+  Button
 } from 'react-native';
+import LoginScreen from './LoginScreen';
 
 export default function HomeScreen({ navigation }: { navigation?: any }) {
   // Sample data for your shop's categories and featured items
@@ -20,7 +22,10 @@ export default function HomeScreen({ navigation }: { navigation?: any }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Button title="Login" onPress={()=> navigation.navigate('Login')} />
+        
       <ScrollView contentContainerStyle={styles.scrollContent}>
+
         
         {/* Header Section */}
         <View style={styles.header}>

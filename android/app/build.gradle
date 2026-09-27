@@ -79,7 +79,7 @@ android {
 
     namespace "com.pocketshoptemp"
     defaultConfig {
-        applicationId "com.pocketshoptemp"
+        applicationId "com.company.pocketshop"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
