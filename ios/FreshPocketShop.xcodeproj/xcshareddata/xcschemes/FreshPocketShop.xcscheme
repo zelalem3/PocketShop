@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "PocketShopTemp.app"
-               BlueprintName = "PocketShopTemp"
-               ReferencedContainer = "container:PocketShopTemp.xcodeproj">
+               BuildableName = "FreshPocketShop.app"
+               BlueprintName = "FreshPocketShop"
+               ReferencedContainer = "container:FreshPocketShop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "PocketShopTempTests.xctest"
-               BlueprintName = "PocketShopTempTests"
-               ReferencedContainer = "container:PocketShopTemp.xcodeproj">
+               BuildableName = "FreshPocketShopTests.xctest"
+               BlueprintName = "FreshPocketShopTests"
+               ReferencedContainer = "container:FreshPocketShop.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PocketShopTemp.app"
-            BlueprintName = "PocketShopTemp"
-            ReferencedContainer = "container:PocketShopTemp.xcodeproj">
+            BuildableName = "FreshPocketShop.app"
+            BlueprintName = "FreshPocketShop"
+            ReferencedContainer = "container:FreshPocketShop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PocketShopTemp.app"
-            BlueprintName = "PocketShopTemp"
-            ReferencedContainer = "container:PocketShopTemp.xcodeproj">
+            BuildableName = "FreshPocketShop.app"
+            BlueprintName = "FreshPocketShop"
+            ReferencedContainer = "container:FreshPocketShop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
