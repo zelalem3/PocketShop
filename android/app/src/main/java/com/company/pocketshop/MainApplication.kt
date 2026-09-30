@@ -1,4 +1,4 @@
-package com.freshpocketshop
+package com.company.pocketshop
 
 import android.app.Application
 import com.facebook.react.PackageList

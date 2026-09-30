@@ -1,4 +1,4 @@
-package com.freshpocketshop
+package com.company.pocketshop
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
