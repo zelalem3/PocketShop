@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -16,24 +17,32 @@ export default function MainApp() {
   const logout = useAuthStore(state => state.logout);
   const loading = useAuthStore(state => state.loading);
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProd = async () => {
+    const loadProducts = async () => {
       try {
-        const all = await fetchProducts();
-        setProducts(all);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
+        setProductsLoading(true);
+        setError(null);
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+        setError('Failed to load products');
+      } finally {
+        setProductsLoading(false);
       }
     };
 
-    fetchProd();
+    loadProducts();
   }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Welcome back</Text>
@@ -51,6 +60,7 @@ export default function MainApp() {
           </Pressable>
         </View>
 
+        {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Discover products</Text>
           <Text style={styles.heroSubtitle}>
@@ -60,25 +70,40 @@ export default function MainApp() {
 
         <Text style={styles.sectionTitle}>Featured Products</Text>
 
-        <View style={styles.productList}>
-          {products.map(product => (
-            <View key={product.id} style={styles.productCard}>
-              <View style={styles.productImage}>
-                <Text style={styles.imagePlaceholder}>Image</Text>
+        {/* Loading / Error / Empty states */}
+        {productsLoading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color="#111827" />
+          </View>
+        ) : error ? (
+          <View style={styles.center}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : products.length === 0 ? (
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>No products found</Text>
+          </View>
+        ) : (
+          <View style={styles.productList}>
+            {products.map(product => (
+              <View key={product.id} style={styles.productCard}>
+                <View style={styles.productImage}>
+                  <Text style={styles.imagePlaceholder}>Image</Text>
+                </View>
+
+                <Text style={styles.productName}>{product.name}</Text>
+
+                <Text style={styles.productPrice}>
+                  ETB {Number(product.price)}
+                </Text>
+
+                <Pressable style={styles.viewButton}>
+                  <Text style={styles.viewButtonText}>View Product</Text>
+                </Pressable>
               </View>
-
-              <Text style={styles.productName}>{product.name}</Text>
-
-              <Text style={styles.productPrice}>
-                ETB {product.price?.toLocaleString()}
-              </Text>
-
-              <Pressable style={styles.viewButton}>
-                <Text style={styles.viewButtonText}>View Product</Text>
-              </Pressable>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -91,6 +116,7 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 24,
+    flexGrow: 1,
   },
   header: {
     flexDirection: 'row',
@@ -184,5 +210,17 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  center: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 15,
+  },
+  emptyText: {
+    color: '#6b7280',
+    fontSize: 15,
   },
 });
