@@ -44,6 +44,30 @@ export const register = async (
 
   return mapFirebaseUser(user);
 };
+export const reloadCurrentUser = async (): Promise<AppUser | null> => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    return null;
+  }
+
+  await user.reload();
+
+  return mapFirebaseUser(user);
+};
+export const resendVerificationEmail = async (): Promise<void> => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error('You must be signed in.');
+  }
+
+  if (user.emailVerified) {
+    return;
+  }
+
+  await sendEmailVerification(user);
+};
 
 export const login = async (
   email: string,
