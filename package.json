@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
-    "start": "react-native start",
+    "start:debug": "ELECTRON_DISABLE_SANDBOX=1 react-native start",
     "test": "jest"
   },
   "dependencies": {

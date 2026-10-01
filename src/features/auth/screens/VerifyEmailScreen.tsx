@@ -11,11 +11,14 @@ import {
   resendVerificationEmail,
   reloadCurrentUser,
 } from '../../../services/auth/authService';
+import {useNavigation} from '@react-navigation/native';
+
 
 export default function VerifyEmailScreen() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigation = useNavigation<any>();
 
   const handleResend = async () => {
     setLoading(true);
@@ -25,6 +28,7 @@ export default function VerifyEmailScreen() {
     try {
       await resendVerificationEmail();
       setMessage('Verification email sent. Check your inbox.');
+      navigation.navigate("Home");
     } catch (error: any) {
       setError(
         error.message || 'Unable to send verification email.',
@@ -44,6 +48,7 @@ export default function VerifyEmailScreen() {
 
       if (user?.emailVerified) {
         setMessage('Email verified successfully.');
+
       } else {
         setError(
           'Your email is not verified yet. Please check your inbox.',

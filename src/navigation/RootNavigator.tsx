@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import React, {useEffect} from 'react';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
-import { useAuthStore } from '../store/authStore';
+import {useAuthStore} from '../store/authStore';
+import VerifyEmailScreen from '../features/auth/screens/VerifyEmailScreen';
 
 export default function RootNavigator() {
-  const user = useAuthStore((state) => state.user);
-  const initialized = useAuthStore((state) => state.initialized);
-  const initialize = useAuthStore((state) => state.initialize);
+  const user = useAuthStore(state => state.user);
+  const initialized = useAuthStore(state => state.initialized);
+  const initialize = useAuthStore(state => state.initialize);
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -24,7 +25,15 @@ export default function RootNavigator() {
     );
   }
 
-  return user ? <MainNavigator /> : <AuthNavigator />;
+  if (!user) {
+    return <AuthNavigator />;
+  }
+
+  if (!user.emailVerified) {
+    return <VerifyEmailScreen />;
+  }
+
+  return <MainNavigator />;
 }
 
 const styles = StyleSheet.create({
