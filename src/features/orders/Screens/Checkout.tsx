@@ -45,8 +45,7 @@ export default function CheckoutScreen() {
     );
   }, [items]);
 
-  const deliveryFee = 0;
-
+  const deliveryFee: number = 0;
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = async () => {
