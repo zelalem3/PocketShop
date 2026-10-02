@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -12,6 +13,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 import {useAuthStore} from '../../../store/authStore';
+import {initializeChapaPayment} from '../../../services/payment/chapaService';
 
 type CartItem = {
   productId: string;
@@ -35,6 +37,7 @@ export default function CheckoutScreen() {
   const [fullName, setFullName] = useState(user?.displayName || '');
   const [phone, setPhone] = useState(user?.phoneNumber || '');
   const [address, setAddress] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -46,79 +49,112 @@ export default function CheckoutScreen() {
   }, [items]);
 
   const deliveryFee: number = 0;
+
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = async () => {
-    setError('');
+  setError('');
 
-    if (!fullName.trim()) {
-      setError('Please enter your full name.');
-      return;
+  if (!fullName.trim()) {
+    setError('Please enter your full name.');
+    return;
+  }
+
+  if (!phone.trim()) {
+    setError('Please enter your phone number.');
+    return;
+  }
+
+  if (!address.trim()) {
+    setError('Please enter your delivery address.');
+    return;
+  }
+
+  if (items.length === 0) {
+    setError('Your cart is empty.');
+    return;
+  }
+
+  if (!user?.uid || !user.email) {
+    setError('You must be signed in to continue.');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // Must be ≤ 20 characters for Chapa
+    // Example result: "PS1748293017" (12 chars)
+    const merchantReference = `PS${Date.now().toString().slice(-10)}`;
+
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || fullName.trim();
+    const lastName = nameParts.slice(1).join(' ') || firstName;
+
+    const checkoutUrl = await initializeChapaPayment({
+      amount: total,
+      merchantReference,
+      customer: {
+        first_name: firstName,
+        last_name: lastName,
+        email: user.email,
+        phone_number: phone.trim(),
+      },
+      orderId: merchantReference, // optional, you can also store the real order id later
+    });
+
+    console.log('Chapa checkout URL:', checkoutUrl);
+    console.log('Chapa merchant reference:', merchantReference);
+
+    const supported = await Linking.canOpenURL(checkoutUrl);
+
+    if (!supported) {
+      throw new Error('Unable to open the Chapa checkout page.');
     }
 
-    if (!phone.trim()) {
-      setError('Please enter your phone number.');
-      return;
-    }
+    await Linking.openURL(checkoutUrl);
 
-    if (!address.trim()) {
-      setError('Please enter your delivery address.');
-      return;
-    }
+    // Do NOT create the Firestore order here.
+    // Wait for payment verification / webhook first.
+  } catch (error) {
+    console.error('Failed to initialize Chapa payment:', error);
 
-    if (items.length === 0) {
-      setError('Your cart is empty.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      /*
-       * Order creation will go here.
-       *
-       * Later:
-       * 1. Create an order document in Firestore.
-       * 2. Save the order items.
-       * 3. Clear the user's cart.
-       * 4. Navigate to the order confirmation screen.
-       */
-
-      console.log('ORDER:', {
-        userId: user?.uid,
-        fullName,
-        phone,
-        address,
-        paymentMethod: 'cash_on_delivery',
-        items,
-        subtotal,
-        deliveryFee,
-        total,
-      });
-
-      navigation.goBack();
-    } catch (error) {
-      console.error('Failed to place order:', error);
-      setError('Unable to place your order. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    setError(
+      error instanceof Error
+        ? error.message
+        : 'Unable to start payment. Please try again.',
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Checkout</Text>
+
+        {/* Header */}
+
+        <Text style={styles.title}>
+          Checkout
+        </Text>
+
         <Text style={styles.subtitle}>
           Enter your delivery information
         </Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delivery Information</Text>
+        {/* Delivery Information */}
 
-          <Text style={styles.label}>Full name</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Delivery Information
+          </Text>
+
+          <Text style={styles.label}>
+            Full name
+          </Text>
 
           <TextInput
             value={fullName}
@@ -126,20 +162,26 @@ export default function CheckoutScreen() {
             placeholder="Enter your full name"
             placeholderTextColor="#9ca3af"
             style={styles.input}
+            editable={!loading}
           />
 
-          <Text style={styles.label}>Phone number</Text>
+          <Text style={styles.label}>
+            Phone number
+          </Text>
 
           <TextInput
             value={phone}
             onChangeText={setPhone}
-            placeholder="09XXXXXXXX"
+            placeholder="+2519XXXXXXXX"
             placeholderTextColor="#9ca3af"
             keyboardType="phone-pad"
             style={styles.input}
+            editable={!loading}
           />
 
-          <Text style={styles.label}>Delivery address</Text>
+          <Text style={styles.label}>
+            Delivery address
+          </Text>
 
           <TextInput
             value={address}
@@ -149,12 +191,20 @@ export default function CheckoutScreen() {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
-            style={[styles.input, styles.addressInput]}
+            style={[
+              styles.input,
+              styles.addressInput,
+            ]}
+            editable={!loading}
           />
         </View>
 
+        {/* Payment Method */}
+
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Method</Text>
+          <Text style={styles.sectionTitle}>
+            Payment Method
+          </Text>
 
           <View style={styles.paymentCard}>
             <View style={styles.radioOuter}>
@@ -163,23 +213,28 @@ export default function CheckoutScreen() {
 
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>
-                Cash on Delivery
+                Chapa
               </Text>
 
               <Text style={styles.paymentSubtitle}>
-                Pay when your order arrives
+                Secure online payment
               </Text>
             </View>
           </View>
         </View>
 
+        {/* Order Summary */}
+
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
+          <Text style={styles.sectionTitle}>
+            Order Summary
+          </Text>
 
           {items.map(item => (
             <View
               key={item.productId}
               style={styles.itemRow}>
+
               <View style={styles.itemInfo}>
                 <Text
                   style={styles.itemName}
@@ -193,23 +248,32 @@ export default function CheckoutScreen() {
               </View>
 
               <Text style={styles.itemPrice}>
-                ETB {(item.price * item.quantity).toLocaleString()}
+                ETB{' '}
+                {(item.price * item.quantity).toLocaleString()}
               </Text>
             </View>
           ))}
 
           <View style={styles.divider} />
 
+          {/* Subtotal */}
+
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryLabel}>
+              Subtotal
+            </Text>
 
             <Text style={styles.summaryValue}>
               ETB {subtotal.toLocaleString()}
             </Text>
           </View>
 
+          {/* Delivery */}
+
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Delivery</Text>
+            <Text style={styles.summaryLabel}>
+              Delivery
+            </Text>
 
             <Text style={styles.summaryValue}>
               {deliveryFee === 0
@@ -218,8 +282,12 @@ export default function CheckoutScreen() {
             </Text>
           </View>
 
+          {/* Total */}
+
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalLabel}>
+              Total
+            </Text>
 
             <Text style={styles.totalValue}>
               ETB {total.toLocaleString()}
@@ -227,9 +295,15 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
+        {/* Error */}
+
         {error ? (
-          <Text style={styles.error}>{error}</Text>
+          <Text style={styles.error}>
+            {error}
+          </Text>
         ) : null}
+
+        {/* Payment Button */}
 
         <Pressable
           style={[
@@ -238,11 +312,13 @@ export default function CheckoutScreen() {
           ]}
           onPress={handlePlaceOrder}
           disabled={loading}>
+
           {loading ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
             <Text style={styles.placeOrderText}>
-              Place Order · ETB {total.toLocaleString()}
+              Pay with Chapa · ETB{' '}
+              {total.toLocaleString()}
             </Text>
           )}
         </Pressable>

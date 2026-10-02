@@ -19,7 +19,7 @@ interface InitializePaymentParams {
 
 interface ChapaInitializeResponse {
   status: string;
-  message: string;
+  message?: string;
   data?: {
     checkout_url?: string;
     created_at?: string;
@@ -34,39 +34,54 @@ export const initializeChapaPayment = async ({
   orderId,
 }: InitializePaymentParams): Promise<string> => {
   if (!CHAPA_SECRET_KEY) {
-    throw new Error('Chapa secret key is not configured.');
+    throw new Error(
+      'Chapa secret key is not configured.',
+    );
   }
+  console.log('CHAPA_SECRET_KEY exists?', !!CHAPA_SECRET_KEY);
+console.log('Key length:', CHAPA_SECRET_KEY?.length);
+console.log('Key starts with:', CHAPA_SECRET_KEY?.substring(0, 12));
 
-  const response = await fetch(CHAPA_HOSTED_PAYMENT_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      amount,
-      currency: 'ETB',
-      merchant_reference: merchantReference,
-      customer,
-      meta: {
-        order_id: orderId ?? merchantReference,
-        source: 'pocketshop-mobile',
+  const response = await fetch(
+    CHAPA_HOSTED_PAYMENT_URL,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+        'Content-Type': 'application/json',
       },
-    }),
-  });
+      body: JSON.stringify({
+        amount,
+        currency: 'ETB',
+        merchant_reference: merchantReference,
+        customer,
+        meta: {
+          order_id: orderId ?? merchantReference,
+          source: 'pocketshop-mobile',
+        },
+      }),
+    },
+  );
 
   const data =
-  (await response.json()) as ChapaInitializeResponse;
+    (await response.json()) as ChapaInitializeResponse;
+
+  console.log('Chapa response status:', response.status);
+  console.log('Chapa response:', data);
+
   if (!response.ok || data.status !== 'success') {
     throw new Error(
-      data.message || 'Failed to initialize Chapa payment.',
+      data.message ||
+        `Chapa payment initialization failed (${response.status}).`,
     );
   }
 
   const checkoutUrl = data.data?.checkout_url;
 
   if (!checkoutUrl) {
-    throw new Error('Chapa did not return a checkout URL.');
+    throw new Error(
+      'Chapa did not return a checkout URL.',
+    );
   }
 
   return checkoutUrl;
