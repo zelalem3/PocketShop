@@ -79,54 +79,58 @@ export default function CheckoutScreen() {
     setError('You must be signed in to continue.');
     return;
   }
+try {
+  setLoading(true);
 
-  try {
-    setLoading(true);
+  // Short unique ref (fine for v1; keep short anyway)
+  const merchantReference = `PS${Date.now().toString().slice(-10)}`;
 
-    // Must be ≤ 20 characters for Chapa
-    // Example result: "PS1748293017" (12 chars)
-    const merchantReference = `PS${Date.now().toString().slice(-10)}`;
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstName = nameParts[0] || fullName.trim();
+  const lastName = nameParts.slice(1).join(' ') || firstName;
 
-    const nameParts = fullName.trim().split(/\s+/);
-    const firstName = nameParts[0] || fullName.trim();
-    const lastName = nameParts.slice(1).join(' ') || firstName;
+  const {checkoutUrl, txRef} = await initializeChapaPayment({
+    amount: total,
+    merchantReference,
+    customer: {
+      first_name: firstName,
+      last_name: lastName,
+      email: user.email,
+      phone_number: phone.trim(),
+    },
+  });
 
-    const checkoutUrl = await initializeChapaPayment({
-      amount: total,
-      merchantReference,
-      customer: {
-        first_name: firstName,
-        last_name: lastName,
-        email: user.email,
-        phone_number: phone.trim(),
-      },
-      orderId: merchantReference, // optional, you can also store the real order id later
-    });
+  console.log('Chapa checkout URL:', checkoutUrl);
+  console.log('Chapa tx_ref:', txRef);
 
-    console.log('Chapa checkout URL:', checkoutUrl);
-    console.log('Chapa merchant reference:', merchantReference);
-
-    const supported = await Linking.canOpenURL(checkoutUrl);
-
-    if (!supported) {
-      throw new Error('Unable to open the Chapa checkout page.');
-    }
-
-    await Linking.openURL(checkoutUrl);
-
-    // Do NOT create the Firestore order here.
-    // Wait for payment verification / webhook first.
-  } catch (error) {
-    console.error('Failed to initialize Chapa payment:', error);
-
-    setError(
-      error instanceof Error
-        ? error.message
-        : 'Unable to start payment. Please try again.',
-    );
-  } finally {
-    setLoading(false);
+  const supported = await Linking.canOpenURL(checkoutUrl);
+  if (!supported) {
+    throw new Error('Unable to open the Chapa checkout page.');
   }
+
+  await Linking.openURL(checkoutUrl);
+
+  (navigation as any).navigate('PaymentSuccess', {
+    merchantReference: txRef,
+    items,
+    subtotal,
+    deliveryFee,
+    total,
+    fullName: fullName.trim(),
+    phone: phone.trim(),
+    address: address.trim(),
+  });
+} catch (error) {
+  console.error('Failed to initialize Chapa payment:', error);
+  setError(
+    error instanceof Error
+      ? error.message
+      : 'Unable to start payment. Please try again.',
+  );
+} finally {
+  setLoading(false);
+}
+   
 };
 
   return (
