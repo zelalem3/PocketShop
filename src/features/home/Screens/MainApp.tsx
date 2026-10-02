@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -10,9 +11,14 @@ import {
 } from 'react-native';
 
 import { useAuthStore } from '../../../store/authStore';
-import { fetchProducts } from '../../../services/firestore/firestoreService';
+import {
+  fetchProducts,
+  addToCart,
+} from '../../../services/firestore/firestoreService';
+import { useNavigation } from '@react-navigation/native';
 
 export default function MainApp() {
+  const navigation = useNavigation();
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
   const loading = useAuthStore(state => state.loading);
@@ -20,6 +26,7 @@ export default function MainApp() {
   const [products, setProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -38,6 +45,29 @@ export default function MainApp() {
 
     loadProducts();
   }, []);
+
+  const handleAddToCart = async (product: any) => {
+    if (!user?.uid) {
+      Alert.alert('Error', 'You must be logged in to add items to cart');
+      return;
+    }
+
+    try {
+      setAddingId(product.id);
+      await addToCart(user.uid, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      });
+      Alert.alert('Success', `${product.name} added to cart`);
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'Failed to add item to cart');
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -70,7 +100,6 @@ export default function MainApp() {
 
         <Text style={styles.sectionTitle}>Featured Products</Text>
 
-        {/* Loading / Error / Empty states */}
         {productsLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color="#111827" />
@@ -94,14 +123,31 @@ export default function MainApp() {
                 <Text style={styles.productName}>{product.name}</Text>
 
                 <Text style={styles.productPrice}>
-                  ETB {Number(product.price)}
+                  ETB {Number(product.price).toLocaleString()}
                 </Text>
 
-                <Pressable style={styles.viewButton}>
-                  <Text style={styles.viewButtonText}>View Product</Text>
+                <Pressable
+                  style={[
+                    styles.viewButton,
+                    addingId === product.id && styles.buttonDisabled,
+                  ]}
+                  onPress={() => handleAddToCart(product)}
+                  disabled={addingId === product.id}
+                >
+                  <Text style={styles.viewButtonText}>
+                    {addingId === product.id ? 'Adding...' : 'Add to Cart'}
+                  </Text>
                 </Pressable>
               </View>
             ))}
+            <Pressable onPress={() => navigation.navigate('Cart' as never)} style={[
+              styles.viewButton,
+              
+            ]}
+            
+            >
+            <Text>Go to Cart</Text>
+          </Pressable>
           </View>
         )}
       </ScrollView>
@@ -205,6 +251,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#111827',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   viewButtonText: {
     color: '#ffffff',
