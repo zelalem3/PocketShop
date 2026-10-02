@@ -3,10 +3,17 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import MainApp from '../features/home/Screens/MainApp';
 import CartScreen from '../features/cart/screens/cartScreen';
-import CheckoutScreen from '../features/orders/Screens/Checkout';
+import Checkout from '../features/orders/Screens/Checkout';
 
+export type MainStackParamList = {
+  Home: undefined;
+  Cart: undefined;
+  Checkout: {
+    items: any[];
+  };
+};
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<MainStackParamList>();
 
 export default function MainNavigator() {
   return (
@@ -14,24 +21,20 @@ export default function MainNavigator() {
       <Stack.Screen
         name="Home"
         component={MainApp}
-        options={{
-          title: 'PocketShop',
-        }}
+        options={{title: 'PocketShop'}}
       />
+
       <Stack.Screen
         name="Cart"
         component={CartScreen}
-        options={{ title: 'Cart' }}
+        options={{title: 'My Cart'}}
       />
+
       <Stack.Screen
         name="Checkout"
-        component={CheckoutScreen}
-        options={{
-          title: 'Checkout',
-        }}
+        component={Checkout}
+        options={{title: 'Checkout'}}
       />
     </Stack.Navigator>
-    
-
   );
 }

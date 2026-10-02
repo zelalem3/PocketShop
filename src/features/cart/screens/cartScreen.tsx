@@ -8,14 +8,17 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
+import type {MainStackParamList} from '../../../navigation/MainNavigator';
 import { useAuthStore } from '../../../store/authStore';
 import { fetchUserCart } from '../../../services/firestore/firestoreService';
 
 export default function CartScreen() {
 
-  const navigation = useNavigation();
+  const navigation =
+  useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const user = useAuthStore(state => state.user);
 
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -102,15 +105,12 @@ export default function CartScreen() {
             </View>
 
             <Pressable
-                style={styles.checkoutButton}
-                onPress={() =>
-                    navigation.navigate('Checkout' as never, {
-                    items: cartItems,
-                    } as never)
-                }>
-                <Text style={styles.checkoutText}>
-                    Proceed to Checkout
-                </Text>
+  style={styles.checkoutButton}
+  onPress={() =>
+    navigation.navigate('Checkout', {
+      items: cartItems,
+    })
+  }>
             </Pressable>
           </View>
         </>
