@@ -25,6 +25,25 @@ export const fetchProducts = async () => {
   }
 };
 
+export const fetchProductDetail = async (productId: string) => {
+  try {
+    const productRef = doc(db, 'products', productId);
+    const productSnap = await getDoc(productRef);
+
+    if (productSnap.exists()) {
+      return {
+        id: productSnap.id,
+        ...productSnap.data(),
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    throw error;
+  }
+};
+
 // --- CART ---
 export const fetchUserCart = async (userId: string) => {
   try {
