@@ -355,18 +355,32 @@ Root Navigator
 
 PocketShop currently includes:
 
-🔐 Login
-📝 Signup
-✉️ Email Verification
-🏠 Home
-🛍️ Product Detail
-🛒 Cart
-💳 Checkout
-✅ Payment Success
-📦 Order History
-📋 Order Detail
-👤 Profile
-🌍 Built for the Ethiopian Market
+- 🔐 **Login**
+- 📝 **Signup**
+- ✉️ **Email Verification**
+- 🏠 **Home**
+- 🛍️ **Product Detail**
+- 🛒 **Cart**
+- 💳 **Checkout**
+- ✅ **Payment Success**
+- 📦 **Order History**
+- 📋 **Order Detail**
+- 👤 **Profile**
+
+---
+
+## 🌍 Built for the Ethiopian Market
+
+PocketShop is designed as an Ethiopian-focused e-commerce application with local payment integration through **Chapa**.
+
+The project provides a foundation for building a complete local shopping experience, including:
+
+- 🛍️ Product discovery
+- 🛒 Cart management
+- 💳 Checkout
+- 🇪🇹 Ethiopian payment integration
+- 📦 Order management
+- 👤 User accounts
 
 PocketShop is designed as an Ethiopian-focused e-commerce application with local payment integration through Chapa.
 
@@ -435,19 +449,29 @@ Restrict Firestore access using security rules
 Never expose private API credentials in the mobile application
 Use environment-specific configuration
 Validate all user-controlled input
+
 ## 🤝 Contributing
 
 Contributions, suggestions, and improvements are welcome.
 
-Fork the repository
+### Fork the Repository
+
+```bash
 git fork https://github.com/zelalem3/PocketShop
-Create a feature branch
+```
+Create a Feature Branch
+```
 git checkout -b feature/your-feature
-Commit your changes
+```
+Commit Your Changes
+```
 git add .
 git commit -m "feat: add your feature"
-Push the branch
+```
+Push the Branch
+```
 git push origin feature/your-feature
+```
 
 Then open a pull request.
 
