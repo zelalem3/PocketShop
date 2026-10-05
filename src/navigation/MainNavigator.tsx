@@ -8,6 +8,7 @@ import PaymentSuccess from '../features/orders/Screens/PaymentSuccess';
 import OrderDetailScreen from '../features/orders/Screens/OrderDetailScreen';
 import OrderListScreen from '../features/orders/Screens/OrderListScreen';
 import ProductDetailScreen from '../features/products/Screens/productDetail';
+import ProfileScreen from '../features/Profile/Screen/ProfileScreen';
 
 export type MainStackParamList = {
   Home: undefined;
@@ -72,6 +73,8 @@ export default function MainNavigator() {
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
       
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+
+      <Stack.Screen name="Profile" component={ProfileScreen} />
 
     </Stack.Navigator>
   );
