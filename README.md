@@ -1,97 +1,471 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# PocketShop 🛍️
 
-# Getting Started
+A modern **React Native** e-commerce mobile app built for the Ethiopian market. Browse products, manage a cart, checkout with **Chapa** payments, and track orders — all powered by **Firebase**.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> **Status:** Actively developed · Core shopping flow is complete
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## ✨ Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 🔐 Authentication
 
-```sh
-# Using npm
+- Email/password signup and login with Firebase Authentication
+- Email verification flow
+- Verified-email gate before accessing the main application
+- Persistent authentication state with Zustand
+- User profile data stored in Firestore
+
+### 🛍️ Product Catalog
+
+- Products fetched dynamically from Firestore
+- Home screen with featured products
+- Product images with `react-native-fast-image`
+- Product detail screen
+- Add products to cart from the home screen
+- Add products to cart from the product detail screen
+
+### 🛒 Cart & Checkout
+
+- Firestore-backed persistent cart
+- Add, remove, and update product quantities
+- Cart total calculation
+- Checkout flow
+- Customer information collection
+- Chapa payment integration
+- Chapa test-mode payments
+- Payment initialization
+- Payment verification using `tx_ref`
+- Payment success screen
+- Order creation after successful payment
+
+### 📦 Orders
+
+- Order history for authenticated users
+- Order list screen
+- Order detail screen
+- Order information stored in Firestore
+- Quick access to orders from the home screen
+
+### 👤 Profile
+
+- User profile screen
+- User information loaded from Firestore
+- Authenticated user information
+- Profile integrated into the main bottom-tab navigation
+
+### 🧭 Navigation
+
+- Root navigator for application-level routing
+- Authentication stack
+- Email verification gate
+- Main application navigator
+- Persistent bottom-tab navigation
+- Native stack navigation for nested screens
+- Product detail navigation
+- Cart and checkout navigation
+- Order list and order detail navigation
+- Profile navigation
+
+### 🏗️ Architecture
+
+- Feature-based project structure
+- Service layer for Firebase and external operations
+- Zustand for authentication state
+- React Hook Form for form management
+- Zod for validation
+- TypeScript throughout the application
+- Firebase used for authentication and data persistence
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React Native 0.87 |
+| Language | TypeScript |
+| Runtime | React 19 |
+| Navigation | React Navigation |
+| Navigation Types | Native Stack + Bottom Tabs |
+| Backend | Firebase |
+| Authentication | Firebase Authentication |
+| Database | Cloud Firestore |
+| Payments | Chapa |
+| State Management | Zustand |
+| Forms | React Hook Form |
+| Validation | Zod |
+| Images | React Native Fast Image |
+| Icons | Lucide React Native |
+| Networking | Axios |
+
+---
+
+## 📁 Project Structure
+
+```text
+src/
+├── components/              # Shared UI components
+├── config/                  # Firebase and application configuration
+├── features/
+│   ├── auth/                # Login, signup, email verification
+│   ├── cart/                # Cart screens and cart functionality
+│   ├── home/                # Home screen and main application
+│   ├── orders/              # Order list, detail, and checkout
+│   ├── products/            # Product detail and product functionality
+│   └── Profile/             # User profile
+├── navigation/              # Root, auth, and main navigators
+├── services/                # Auth, Firestore, orders, and payment services
+├── store/                   # Zustand stores
+└── types/                   # Shared TypeScript types
+```
+## 🚀 Getting Started
+Prerequisites
+
+Before running PocketShop locally, make sure you have:
+
+Node.js >= 22.11
+React Native development environment
+Android Studio for Android development
+Xcode for iOS development
+A Firebase project
+Firebase Authentication enabled
+Cloud Firestore enabled
+A Chapa test account for payment testing
+
+For React Native environment setup, see the official React Native documentation.
+
+1. Clone the Repository
+```bash
+git clone https://github.com/zelalem3/PocketShop.git
+cd PocketShop
+```
+2. Install Dependencies
+
+Using npm:
+
+```
+npm install
+ ```
+
+Or using Yarn:
+
+```
+bash yarn install
+ ```
+3. Configure Firebase
+
+Create a Firebase project and enable:
+
+Firebase Authentication
+Email/Password authentication
+Cloud Firestore
+Android
+
+Download your Firebase Android configuration file:
+
+google-services.json
+
+Place it inside:
+
+android/app/google-services.json
+iOS
+
+Download your Firebase iOS configuration file:
+
+GoogleService-Info.plist
+
+Place it inside the appropriate iOS project directory.
+
+Note: Do not commit sensitive credentials or private secrets to the repository.
+
+4. Configure Environment Variables
+
+Create a .env file in the project root.
+
+Example:
+
+```
+CHAPA_SECRET_KEY=your_chapa_test_secret_key
+```
+
+Add any other environment variables required by the application.
+
+Make sure .env is included in .gitignore.
+
+5. Configure Firestore
+
+Create the required Firestore collections and documents used by the application.
+
+PocketShop currently uses Firestore for:
+
+Products
+Users
+Carts
+Orders
+
+Configure your Firestore security rules so that authenticated users can only access data they are authorized to access.
+
+6. Start Metro
+```
 npm start
+ ```
 
-# OR using Yarn
-yarn start
+Or:
+
 ```
+npx react-native start
+ ```
+7. Run on Android
 
-## Step 2: Build and run your app
+With an Android emulator or connected Android device:
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+``` 
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+Or:
 ```
+npx react-native run-android
+```
+8. Run on iOS
 
-Then, and every time you update your native dependencies, run:
+Install CocoaPods dependencies:
 
-```sh
+```
+cd ios
+```
 bundle exec pod install
 ```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+cd ..
+```
+Then run:
+```
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Or:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+  ```  
+npx react-native run-ios
+```
+## 🗺️ Project Progress
 
-## Step 3: Modify your app
+| Feature | Status | Notes |
+|---|:---:|---|
+| Project Bootstrap | ✅ Done | React Native 0.87 + TypeScript |
+| Firebase Authentication | ✅ Done | Signup, login, email verification |
+| Firestore Products | ✅ Done | Dynamic product catalog |
+| Product Detail | ✅ Done | Product information and images |
+| Cart | ✅ Done | Add, view, and manage products |
+| Checkout | ✅ Done | Checkout flow |
+| Chapa Payments | ✅ Done | Test mode + payment verification |
+| Order Creation | ✅ Done | Orders saved to Firestore |
+| Order History | ✅ Done | User order list |
+| Order Detail | ✅ Done | Individual order information |
+| Profile Screen | ✅ Done | User data from Firestore |
+| Bottom Tab Navigation | ✅ Done | Persistent application tabs |
+| Image Display | ✅ Done | Fast Image integration |
 
-Now that you have successfully run the app, let's make changes!
+## 💳 Payment Flow
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+PocketShop integrates with Chapa to handle payments.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+The current payment flow is:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+User
+  │
+  ▼
+Checkout
+  │
+  ▼
+Initialize Chapa Payment
+  │
+  ▼
+Chapa Hosted Payment
+  │
+  ▼
+Payment Completed
+  │
+  ▼
+Verify Transaction
+  │
+  ▼
+Payment Success
+  │
+  ▼
+Create Order in Firestore
 
-## Congratulations! :tada:
+The application currently uses Chapa's test environment for development.
 
-You've successfully run and modified your React Native App. :partying_face:
+Production payment configuration, secure backend verification, and webhook handling are planned for a future release.
 
-### Now what?
+## 🔐 Authentication Flow
+```
+Application Start
+       │
+       ▼
+Firebase Auth State
+       │
+       ├── Not Authenticated ──► Login / Signup
+       │
+       └── Authenticated
+                │
+                ▼
+          Email Verified?
+                │
+          ┌─────┴─────┐
+          │           │
+         No          Yes
+          │           │
+          ▼           ▼
+   Verify Email    Main App
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+Users must verify their email address before accessing the main application.
 
-# Troubleshooting
+## 🧭 Navigation Architecture
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+PocketShop uses a combination of Native Stack Navigation and Bottom Tab Navigation.
+```
+Root Navigator
+│
+├── Auth Navigator
+│   ├── Login
+│   ├── Signup
+│   └── Verify Email
+│
+└── Main App
+    │
+    ├── Bottom Tabs
+    │   ├── Home
+    │   ├── Cart
+    │   ├── Orders
+    │   └── Profile
+    │
+    └── Native Stack
+        ├── Product Detail
+        ├── Cart
+        ├── Checkout
+        ├── Payment Success
+        ├── Order List
+        └── Order Detail
+```
+## 📱 Application Screens
 
-# Learn More
+PocketShop currently includes:
 
-To learn more about React Native, take a look at the following resources:
+🔐 Login
+📝 Signup
+✉️ Email Verification
+🏠 Home
+🛍️ Product Detail
+🛒 Cart
+💳 Checkout
+✅ Payment Success
+📦 Order History
+📋 Order Detail
+👤 Profile
+🌍 Built for the Ethiopian Market
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+PocketShop is designed as an Ethiopian-focused e-commerce application with local payment integration through Chapa.
+
+The project provides a foundation for building a complete local shopping experience, including:
+
+Product discovery
+Cart management
+Checkout
+Ethiopian payment integration
+Order management
+User accounts
+## 🔮 Possible Next Steps
+## 🛍️ Shopping Experience
+ Product search
+ Category filters
+ Product sorting
+ Wishlist
+ Product reviews and ratings
+ Recently viewed products
+## 📦 Orders
+ Order status tracking
+ Order cancellation
+ Order notifications
+ Delivery tracking
+ Order status timeline
+## 🔔 Notifications
+ Push notifications
+ Order status notifications
+ Payment notifications
+ Promotional notifications
+## 💳 Payments
+ Production Chapa credentials
+ Secure backend payment verification
+ Chapa webhooks
+ Payment failure handling
+ Payment retry flow
+## 👨‍💼 Admin & Vendor Features
+ Admin dashboard
+ Product management
+ Inventory management
+ Order management
+ Vendor accounts
+ Sales analytics
+## ⚡ Performance & Reliability
+ Offline support
+ Better loading states
+ Better error handling
+ Image caching improvements
+ Network retry mechanisms
+ Optimistic UI updates
+## 🧪 Testing
+ Unit tests
+ Component tests
+ Integration tests
+ End-to-end tests
+## 🔒 Security
+
+PocketShop uses Firebase Authentication and Firestore security rules to protect user data.
+
+For production deployment:
+
+Keep payment secrets out of the client application
+Perform sensitive payment verification on a trusted backend
+Validate Chapa webhook requests
+Restrict Firestore access using security rules
+Never expose private API credentials in the mobile application
+Use environment-specific configuration
+Validate all user-controlled input
+## 🤝 Contributing
+
+Contributions, suggestions, and improvements are welcome.
+
+Fork the repository
+git fork https://github.com/zelalem3/PocketShop
+Create a feature branch
+git checkout -b feature/your-feature
+Commit your changes
+git add .
+git commit -m "feat: add your feature"
+Push the branch
+git push origin feature/your-feature
+
+Then open a pull request.
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+See the LICENSE file for details.
+
+## 👨‍💻 Author
+
+Zelalem Getnet
+
+Full-Stack Software Engineer | Computer Science Graduate | ALX Software Engineering Alumni
+
+- GitHub: [zelalem3](https://github.com/zelalem3)
+- LinkedIn: [Zelalem Getnet](https://linkedin.com/in/zelalem-getnet-533326246)
+
+Built with ❤️ by Zelalem Getnet
+
+PocketShop — a modern e-commerce experience for Ethiopia 🇪🇹
