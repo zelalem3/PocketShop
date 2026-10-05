@@ -71,26 +71,64 @@ export default function OrderDetailScreen() {
 
 
 const styles = StyleSheet.create({
-    section: {
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  container: {
+    padding: 20,
+    paddingBottom: 40,
+    backgroundColor: '#F8FAFC',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  status: {
+    alignSelf: 'flex-start',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginBottom: 24,
+    overflow: 'hidden',
+    // Default (pending / other)
+    backgroundColor: '#F1F5F9',
+    color: '#64748B',
+  },
 
-    },
-    total: {
 
-    },
-    title :{
-
-    },
-    status : {
-
-    },
-    itemRow: {
-
-    },
-    center : {
-
-    },
-    container: {
-
-    },
-    
-})
+  section: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginTop: 28,
+    marginBottom: 12,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  total: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginTop: 8,
+  },
+});  
