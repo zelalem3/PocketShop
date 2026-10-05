@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Platform,
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
@@ -21,49 +22,30 @@ export default function ProductDetailScreen() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  console.log(params.productId);
 
   useEffect(() => {
     const loadProduct = async () => {
-        try {
+      try {
         setLoading(true);
         setError(null);
 
         const data = await fetchProductDetail(params.productId);
 
         if (!data) {
-            setError('Product not found');
+          setError('Product not found');
         } else {
-            setProduct(data);
+          setProduct(data);
         }
-        } catch (err) {
+      } catch (err) {
         console.error(err);
         setError('Failed to load product');
-        } finally {
+      } finally {
         setLoading(false);
-        }
+      }
     };
 
     loadProduct();
-    }, [params.productId]);
-
-    // ← Remove the console.log(product.name) that was here
-
-    if (loading) {
-    return (
-        <View style={styles.center}>
-        <ActivityIndicator size="large" color="#111827" />
-        </View>
-    );
-    }
-
-    if (error || !product) {
-    return (
-        <View style={styles.center}>
-        <Text style={styles.errorText}>{error || 'Product not found'}</Text>
-        </View>
-    );
-    }
+  }, [params.productId]);
 
   if (loading) {
     return (
@@ -88,13 +70,28 @@ export default function ProductDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.container}>
+          {/* Product Image */}
+          {product.imageUrl ? (
+            <Image
+              source={{ uri: product.imageUrl }}
+              style={styles.detailImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.detailImage, styles.imagePlaceholder]}>
+              <Text style={styles.placeholderText}>No Image</Text>
+            </View>
+          )}
+
           <Text style={styles.title}>{product.name || 'Product'}</Text>
 
           <Text style={styles.label}>Description</Text>
           <Text style={styles.value}>{product.description}</Text>
 
           <Text style={styles.label}>Price</Text>
-          <Text style={styles.price}>ETB {product.price?.toLocaleString()}</Text>
+          <Text style={styles.price}>
+            ETB {product.price?.toLocaleString()}
+          </Text>
 
           <Text style={styles.label}>Stock</Text>
           <Text style={styles.value}>{product.stockQuantity}</Text>
@@ -128,6 +125,21 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingBottom: 40,
+  },
+  detailImage: {
+    width: '100%',
+    height: 280,
+    borderRadius: 16,
+    marginBottom: 20,
+    backgroundColor: '#E2E8F0',
+  },
+  imagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#94A3B8',
+    fontSize: 14,
   },
   title: {
     fontSize: 24,

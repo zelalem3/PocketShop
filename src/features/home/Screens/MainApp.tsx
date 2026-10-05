@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -144,9 +145,18 @@ export default function MainApp() {
       navigation.navigate('ProductDetail', { productId: product.id })
     }
   >
-    <View style={styles.productImage}>
-      <Text style={styles.imagePlaceholder}>Image</Text>
+      {/* Product Image */}
+  {product.imageUrl ? (
+    <Image
+      source={{ uri: product.imageUrl }}
+      style={styles.detailImage}
+      resizeMode="cover"
+    />
+  ) : (
+    <View style={[styles.detailImage, styles.imagePlaceholder]}>
+      <Text style={styles.placeholderText}>No Image</Text>
     </View>
+  )}
 
     <Text style={styles.productName}>{product.name}</Text>
 
@@ -312,4 +322,19 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 15,
   },
+  detailImage: {
+  width: '100%',
+  height: 280,
+  borderRadius: 16,
+  marginBottom: 20,
+  backgroundColor: '#E2E8F0',
+},
+imagePlaceholder: {
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+placeholderText: {
+  color: '#94A3B8',
+  fontSize: 14,
+},
 });
