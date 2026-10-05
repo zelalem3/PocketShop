@@ -79,22 +79,28 @@ export default function MainApp() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Welcome back</Text>
-            <Text style={styles.name}>
-              {user?.displayName || user?.email}
-            </Text>
-          </View>
+        {/* Header */}
+<View style={styles.header}>
+  <View>
+    <Text style={styles.greeting}>Welcome back</Text>
 
-          <Pressable
-            style={styles.logoutButton}
-            onPress={logout}
-            disabled={loading}
-          >
-            <Text style={styles.logoutText}>Logout</Text>
-          </Pressable>
-        </View>
+      <Pressable onPress={() => navigation.navigate('Profile')}>
+        <Text style={styles.name}>
+          {user?.displayName || user?.email}
+        </Text>
+      </Pressable>
+    </View>
+
+    <Pressable
+      style={styles.logoutButton}
+      onPress={logout}
+      disabled={loading}
+    >
+      <Text style={styles.logoutText}>Logout</Text>
+    </Pressable>
+  </View>
+
+          
 
         {/* Quick Actions */}
         <View style={styles.actionsRow}>

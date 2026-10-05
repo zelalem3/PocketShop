@@ -111,3 +111,23 @@ export const addToCart = async (
     throw error;
   }
 };
+
+
+export const fetchUserProfile = async (userId: string) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return {
+        id: userSnap.id,
+        ...userSnap.data(),
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
+};
