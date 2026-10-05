@@ -116,48 +116,85 @@ export default function OrderListScreen() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    total: {
-        fontSize: 16
-    },
-    items: {
-        color: '#fff'
-    },
-    date:{
-
-    },
-    list: {
-
-    },
-    safe: {
-
-    },
-    paid :{
-
-    },
-    row: {
-
-    },
-    failed: {
-
-    },
-    ref: {
-
-    },
-    card : {
-
-    },
-    status : {
-
-    },
-    center: {
-
-    },
-    empty: {
-
-    }
-
-})
+  safe: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  list: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    // Soft shadow
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  ref: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+    letterSpacing: 0.3,
+  },
+  status: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#F1F5F9',
+    color: '#64748B',
+  },
+  paid: {
+    backgroundColor: '#DCFCE7',
+    color: '#15803D',
+  },
+  failed: {
+    backgroundColor: '#FEE2E2',
+    color: '#B91C1C',
+  },
+  date: {
+    fontSize: 13,
+    color: '#64748B',
+    marginBottom: 6,
+  },
+  total: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  items: {
+    fontSize: 13,
+    color: '#94A3B8',
+  },
+  empty: {
+    fontSize: 16,
+    color: '#94A3B8',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});
