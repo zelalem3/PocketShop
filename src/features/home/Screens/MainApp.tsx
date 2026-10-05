@@ -73,7 +73,8 @@ export default function MainApp() {
     }
   };
 
-  return (
+  
+  return (     
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
@@ -136,31 +137,39 @@ export default function MainApp() {
         ) : (
           <View style={styles.productList}>
             {products.map(product => (
-              <View key={product.id} style={styles.productCard}>
-                <View style={styles.productImage}>
-                  <Text style={styles.imagePlaceholder}>Image</Text>
-                </View>
+  <Pressable
+    key={product.id}
+    style={styles.productCard}
+    onPress={() =>
+      navigation.navigate('ProductDetail', { productId: product.id })
+    }
+  >
+    <View style={styles.productImage}>
+      <Text style={styles.imagePlaceholder}>Image</Text>
+    </View>
 
-                <Text style={styles.productName}>{product.name}</Text>
+    <Text style={styles.productName}>{product.name}</Text>
 
-                <Text style={styles.productPrice}>
-                  ETB {Number(product.price).toLocaleString()}
-                </Text>
+    <Text style={styles.productPrice}>
+      ETB {Number(product.price).toLocaleString()}
+    </Text>
 
-                <Pressable
-                  style={[
-                    styles.addButton,
-                    addingId === product.id && styles.buttonDisabled,
-                  ]}
-                  onPress={() => handleAddToCart(product)}
-                  disabled={addingId === product.id}
-                >
-                  <Text style={styles.addButtonText}>
-                    {addingId === product.id ? 'Adding...' : 'Add to Cart'}
-                  </Text>
-                </Pressable>
-              </View>
-            ))}
+    {/* Keep the Add to Cart button separate so it doesn't trigger navigation */}
+    <Pressable
+      style={[
+        styles.addButton,
+        addingId === product.id && styles.buttonDisabled,
+      ]}
+      onPress={(e) => { e.stopPropagation?.(); }}
+      disabled={addingId === product.id}
+    >
+      <Text style={styles.addButtonText}>
+        {addingId === product.id ? 'Adding...' : 'Add to Cart'}
+      </Text>
+    </Pressable>
+  </Pressable>
+))}
+            
           </View>
         )}
       </ScrollView>
