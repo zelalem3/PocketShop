@@ -7,6 +7,7 @@ import Checkout from '../features/orders/Screens/Checkout';
 import PaymentSuccess from '../features/orders/Screens/PaymentSuccess';
 import OrderDetailScreen from '../features/orders/Screens/OrderDetailScreen';
 import OrderListScreen from '../features/orders/Screens/OrderListScreen';
+import ProductDetailScreen from '../features/products/Screens/productDetail';
 
 export type MainStackParamList = {
   Home: undefined;
@@ -42,6 +43,11 @@ export type MainStackParamList = {
   OrderDetail: {
     orderId: string;
   };
+
+  ProductDetail: {
+    productId: Number
+  }
+
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -64,6 +70,9 @@ export default function MainNavigator() {
       <Stack.Screen name="OrderList" component={OrderListScreen} />
 
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+      
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+
     </Stack.Navigator>
   );
 }
