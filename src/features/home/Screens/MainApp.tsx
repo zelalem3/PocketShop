@@ -9,16 +9,20 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuthStore } from '../../../store/authStore';
 import {
   fetchProducts,
   addToCart,
 } from '../../../services/firestore/firestoreService';
-import { useNavigation } from '@react-navigation/native';
+import { MainStackParamList } from '../../../navigation/MainNavigator';
+
+type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function MainApp() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
   const loading = useAuthStore(state => state.loading);
@@ -90,6 +94,23 @@ export default function MainApp() {
           </Pressable>
         </View>
 
+        {/* Quick Actions */}
+        <View style={styles.actionsRow}>
+          <Pressable
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Cart')}
+          >
+            <Text style={styles.actionButtonText}>My Cart</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('OrderList')}
+          >
+            <Text style={styles.actionButtonText}>My Orders</Text>
+          </Pressable>
+        </View>
+
         {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Discover products</Text>
@@ -128,26 +149,18 @@ export default function MainApp() {
 
                 <Pressable
                   style={[
-                    styles.viewButton,
+                    styles.addButton,
                     addingId === product.id && styles.buttonDisabled,
                   ]}
                   onPress={() => handleAddToCart(product)}
                   disabled={addingId === product.id}
                 >
-                  <Text style={styles.viewButtonText}>
+                  <Text style={styles.addButtonText}>
                     {addingId === product.id ? 'Adding...' : 'Add to Cart'}
                   </Text>
                 </Pressable>
               </View>
             ))}
-            <Pressable onPress={() => navigation.navigate('Cart' as never)} style={[
-              styles.viewButton,
-              
-            ]}
-            
-            >
-            <Text>Go to Cart</Text>
-          </Pressable>
           </View>
         )}
       </ScrollView>
@@ -168,7 +181,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   greeting: {
     fontSize: 14,
@@ -191,6 +204,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#111827',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  actionButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#111827',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   hero: {
     padding: 24,
@@ -245,7 +276,7 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 14,
   },
-  viewButton: {
+  addButton: {
     height: 44,
     borderRadius: 8,
     backgroundColor: '#111827',
@@ -255,7 +286,7 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.6,
   },
-  viewButtonText: {
+  addButtonText: {
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '600',
