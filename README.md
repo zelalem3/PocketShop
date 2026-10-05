@@ -269,10 +269,11 @@ npx react-native run-ios
 
 ## 💳 Payment Flow
 
-PocketShop integrates with Chapa to handle payments.
+PocketShop integrates with **Chapa** to handle payments.
 
 The current payment flow is:
 
+```text
 User
   │
   ▼
@@ -295,11 +296,10 @@ Payment Success
   │
   ▼
 Create Order in Firestore
-
+```
 The application currently uses Chapa's test environment for development.
 
 Production payment configuration, secure backend verification, and webhook handling are planned for a future release.
-
 ## 🔐 Authentication Flow
 ```
 Application Start
