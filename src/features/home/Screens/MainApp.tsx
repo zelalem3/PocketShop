@@ -8,21 +8,22 @@ import {
   StyleSheet,
   Text,
   View,
-  Image
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { addToWishList } from '../../../services/firestore/firestoreService';
-import { useAuthStore } from '../../../store/authStore';
 import {
+  addToWishList,
   fetchProducts,
   addToCart,
 } from '../../../services/firestore/firestoreService';
+import { useAuthStore } from '../../../store/authStore';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function MainApp() {
+  // ─── ALL HOOKS FIRST (stable order) ───────────────────────────────
   const navigation = useNavigation<NavigationProp>();
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
@@ -32,28 +33,7 @@ export default function MainApp() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
-
-
- const wishList = async (productId: string) =>
-  {
-    try{
-      const result =  addToWishList(user?.uid, productId)
-      return "Product added to wishlist successfully"
-
-    }
-    catch(error)
-    {
-      console.error("Error adding to wishlist: ", error)
-      throw error
-    }
-  }
-
-
-
-
-
-
-
+  const [wishlistAddingId, setWishlistAddingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -73,6 +53,7 @@ export default function MainApp() {
     loadProducts();
   }, []);
 
+  // ─── Regular functions (not hooks) ────────────────────────────────
   const handleAddToCart = async (product: any) => {
     if (!user?.uid) {
       Alert.alert('Error', 'You must be logged in to add items to cart');
@@ -96,33 +77,47 @@ export default function MainApp() {
     }
   };
 
-  
-  return (     
+  const handleAddToWishlist = async (product: any) => {
+    if (!user?.uid) {
+      Alert.alert('Error', 'You must be logged in to add items to wishlist');
+      return;
+    }
+
+    try {
+      setWishlistAddingId(product.id);
+      await addToWishList(user.uid, product.id);
+      Alert.alert('Success', `${product.name} added to wishlist`);
+    } catch (err) {
+      console.error('Error adding to wishlist:', err);
+      Alert.alert('Error', 'Failed to add item to wishlist');
+    } finally {
+      setWishlistAddingId(null);
+    }
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────
+  return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
-        {/* Header */}
-<View style={styles.header}>
-  <View>
-    <Text style={styles.greeting}>Welcome back</Text>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Welcome back</Text>
+            <Pressable onPress={() => navigation.navigate('Profile')}>
+              <Text style={styles.name}>
+                {user?.displayName || user?.email}
+              </Text>
+            </Pressable>
+          </View>
 
-      <Pressable onPress={() => navigation.navigate('Profile')}>
-        <Text style={styles.name}>
-          {user?.displayName || user?.email}
-        </Text>
-      </Pressable>
-    </View>
-
-    <Pressable
-      style={styles.logoutButton}
-      onPress={logout}
-      disabled={loading}
-    >
-      <Text style={styles.logoutText}>Logout</Text>
-    </Pressable>
-  </View>
-
-          
+          <Pressable
+            style={styles.logoutButton}
+            onPress={logout}
+            disabled={loading}
+          >
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
 
         {/* Quick Actions */}
         <View style={styles.actionsRow}>
@@ -144,9 +139,7 @@ export default function MainApp() {
         {/* Hero */}
         <View style={styles.hero}>
           <Text style={styles.heroTitle}>Discover products</Text>
-          <Text style={styles.heroSubtitle}>
-            Find something you'll love.
-          </Text>
+          <Text style={styles.heroSubtitle}>Find something you'll love.</Text>
         </View>
 
         <Text style={styles.sectionTitle}>Featured Products</Text>
@@ -166,52 +159,71 @@ export default function MainApp() {
         ) : (
           <View style={styles.productList}>
             {products.map(product => (
-  <Pressable
-    key={product.id}
-    style={styles.productCard}
-    onPress={() =>
-      navigation.navigate('ProductDetail', { productId: product.id })
-    }
-  >
-      {/* Product Image */}
-  {product.imageUrl ? (
-    <Image
-      source={{ uri: product.imageUrl }}
-      style={styles.detailImage}
-      resizeMode="cover"
-    />
-  ) : (
-    <View style={[styles.detailImage, styles.imagePlaceholder]}>
-      <Text style={styles.placeholderText}>No Image</Text>
-    </View>
-  )}
+              <Pressable
+                key={product.id}
+                style={styles.productCard}
+                onPress={() =>
+                  navigation.navigate('ProductDetail', {
+                    productId: product.id,
+                  })
+                }
+              >
+                {product.imageUrl ? (
+                  <Image
+                    source={{ uri: product.imageUrl }}
+                    style={styles.detailImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[styles.detailImage, styles.imagePlaceholder]}>
+                    <Text style={styles.placeholderText}>No Image</Text>
+                  </View>
+                )}
 
-    <Text style={styles.productName}>{product.name}</Text>
+                <Text style={styles.productName}>{product.name}</Text>
 
-    <Text style={styles.productPrice}>
-      ETB {Number(product.price).toLocaleString()}
-    </Text>
-    <Pressable 
-    onPress={() => wishList(product.id)}>
-      <Text>Add to WishList</Text>
-    </Pressable>
+                <Text style={styles.productPrice}>
+                  ETB {Number(product.price).toLocaleString()}
+                </Text>
 
-    {/* Keep the Add to Cart button separate so it doesn't trigger navigation */}
-    <Pressable
-      style={[
-        styles.addButton,
-        addingId === product.id && styles.buttonDisabled,
-      ]}
-      onPress={(e) => { e.stopPropagation?.(); }}
-      disabled={addingId === product.id}
-    >
-      <Text style={styles.addButtonText}>
-        {addingId === product.id ? 'Adding...' : 'Add to Cart'}
-      </Text>
-    </Pressable>
-  </Pressable>
-))}
-            
+                {/* Buttons */}
+                <View style={styles.buttonRow}>
+                  <Pressable
+                    style={[
+                      styles.wishlistButton,
+                      wishlistAddingId === product.id && styles.buttonDisabled,
+                    ]}
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      handleAddToWishlist(product);
+                    }}
+                    disabled={wishlistAddingId === product.id}
+                  >
+                    <Text style={styles.wishlistButtonText}>
+                      {wishlistAddingId === product.id
+                        ? 'Adding...'
+                        : '♡ Wishlist'}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      styles.addButton,
+                      addingId === product.id && styles.buttonDisabled,
+                    ]}
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      handleAddToCart(product);
+                    }}
+                    disabled={addingId === product.id}
+                  >
+                    <Text style={styles.addButtonText}>
+                      {addingId === product.id ? 'Adding...' : 'Add to Cart'}
+                    </Text>
+                  </Pressable>
+                </View>
+              </Pressable>
+            ))}
           </View>
         )}
       </ScrollView>
@@ -304,17 +316,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
   },
-  productImage: {
-    height: 160,
-    borderRadius: 10,
-    backgroundColor: '#e5e7eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
-  imagePlaceholder: {
-    color: '#6b7280',
-  },
   productName: {
     fontSize: 17,
     fontWeight: '600',
@@ -327,20 +328,40 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 14,
   },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  wishlistButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#111827',
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wishlistButtonText: {
+    color: '#111827',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   addButton: {
+    flex: 1,
     height: 44,
     borderRadius: 8,
     backgroundColor: '#111827',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
   addButtonText: {
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  buttonDisabled: {
+    opacity: 0.55,
   },
   center: {
     paddingVertical: 40,
@@ -355,18 +376,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   detailImage: {
-  width: '100%',
-  height: 280,
-  borderRadius: 16,
-  marginBottom: 20,
-  backgroundColor: '#E2E8F0',
-},
-imagePlaceholder: {
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-placeholderText: {
-  color: '#94A3B8',
-  fontSize: 14,
-},
+    width: '100%',
+    height: 280,
+    borderRadius: 16,
+    marginBottom: 20,
+    backgroundColor: '#E2E8F0',
+  },
+  imagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#94A3B8',
+    fontSize: 14,
+  },
 });
