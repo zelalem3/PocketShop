@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { addToWishList } from '../../../services/firestore/firestoreService';
 import { useAuthStore } from '../../../store/authStore';
 import {
   fetchProducts,
@@ -32,6 +32,28 @@ export default function MainApp() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+
+
+ const wishList = async (productId: string) =>
+  {
+    try{
+      const result =  addToWishList(user?.uid, productId)
+      return "Product added to wishlist successfully"
+
+    }
+    catch(error)
+    {
+      console.error("Error adding to wishlist: ", error)
+      throw error
+    }
+  }
+
+
+
+
+
+
+
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -169,6 +191,10 @@ export default function MainApp() {
     <Text style={styles.productPrice}>
       ETB {Number(product.price).toLocaleString()}
     </Text>
+    <Pressable 
+    onPress={() => wishList(product.id)}>
+      <Text>Add to WishList</Text>
+    </Pressable>
 
     {/* Keep the Add to Cart button separate so it doesn't trigger navigation */}
     <Pressable
