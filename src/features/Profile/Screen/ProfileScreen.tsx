@@ -115,6 +115,17 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>My Orders</Text>
             <Text style={styles.menuArrow}>›</Text>
           </Pressable>
+          <Pressable
+          style={styles.menuItem}
+          onPress={() =>
+              navigation.navigate('Home', {
+                screen: 'WishList',
+              })
+            }
+          >
+          <Text style={styles.menuText}>WishList</Text>
+          <Text style={styles.menuArrow}>›</Text>
+          </Pressable>
         </View>
 
         {/* Logout */}
