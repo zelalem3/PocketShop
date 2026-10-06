@@ -26,8 +26,9 @@ export default function WishListScreen() {
     let isMounted = true;
 
     const loadWishlist = async () => {
+        console.log(user)
       // No user yet → stop loading, show empty state
-      if (!user?.id) {
+      if (!user?.uid) {
         if (isMounted) {
           setWishListProducts([]);
           setLoading(false);
@@ -43,7 +44,7 @@ export default function WishListScreen() {
         }
 
         // 1. Get product IDs
-        const productIds = await fetchWishListIds(user.id);
+        const productIds = await fetchWishListIds(user.uid);
         console.log("Wishlist IDs:", productIds);
 
         // 2. Get full product docs
@@ -71,7 +72,7 @@ export default function WishListScreen() {
     return () => {
       isMounted = false;
     };
-  }, [user?.id]);
+  }, [user?.uid]);
 
   // ----- LOADING -----
   if (loading) {
@@ -99,7 +100,7 @@ export default function WishListScreen() {
       <View style={styles.center}>
         <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
         <Text style={styles.hint}>
-          {user?.id ? "Add products to see them here" : "Please sign in"}
+          {user?.uid ? "Add products to see them here" : "Please sign in"}
         </Text>
       </View>
     );
