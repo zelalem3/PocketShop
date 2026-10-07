@@ -11,6 +11,7 @@ import HomeStack from './HomeStack';
 import ProfileScreen from '../features/Profile/Screen/ProfileScreen';
 import OrderListScreen from '../features/orders/Screens/OrderListScreen';
 import CartScreen from '../features/cart/screens/cartScreen';
+import WishListScreen from '../features/wishlist/Screens/wishListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -39,6 +40,7 @@ export function MyTabs() {
           if (route.name === 'Profile') {
             return <User size={size} color={color} />;
           }
+          
 
           return null;
         },
