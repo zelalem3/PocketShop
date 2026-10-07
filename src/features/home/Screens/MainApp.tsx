@@ -53,7 +53,7 @@ export default function MainApp() {
     loadProducts();
   }, []);
 
-  // ─── Regular functions (not hooks) ────────────────────────────────
+  // ─── Regular functions ────────────────────────────────────────────
   const handleAddToCart = async (product: any) => {
     if (!user?.uid) {
       Alert.alert('Error', 'You must be logged in to add items to cart');
@@ -171,11 +171,11 @@ export default function MainApp() {
                 {product.imageUrl ? (
                   <Image
                     source={{ uri: product.imageUrl }}
-                    style={styles.detailImage}
+                    style={styles.productImage}
                     resizeMode="cover"
                   />
                 ) : (
-                  <View style={[styles.detailImage, styles.imagePlaceholder]}>
+                  <View style={[styles.productImage, styles.imagePlaceholder]}>
                     <Text style={styles.placeholderText}>No Image</Text>
                   </View>
                 )}
@@ -186,7 +186,7 @@ export default function MainApp() {
                   ETB {Number(product.price).toLocaleString()}
                 </Text>
 
-                {/* Buttons */}
+                {/* Action Buttons */}
                 <View style={styles.buttonRow}>
                   <Pressable
                     style={[
@@ -200,9 +200,7 @@ export default function MainApp() {
                     disabled={wishlistAddingId === product.id}
                   >
                     <Text style={styles.wishlistButtonText}>
-                      {wishlistAddingId === product.id
-                        ? 'Adding...'
-                        : '♡ Wishlist'}
+                      {wishlistAddingId === product.id ? 'Adding...' : '♡ Wishlist'}
                     </Text>
                   </Pressable>
 
@@ -222,6 +220,19 @@ export default function MainApp() {
                     </Text>
                   </Pressable>
                 </View>
+
+                {/* Reviews Button */}
+                <Pressable
+                  style={styles.reviewsButton}
+                  onPress={e => {
+                    e.stopPropagation?.();
+                    navigation.navigate('ReviewScreen', {
+                      productId: product.id,
+                    });
+                  }}
+                >
+                  <Text style={styles.reviewsButtonText}>★ View & Write Reviews</Text>
+                </Pressable>
               </Pressable>
             ))}
           </View>
@@ -234,22 +245,22 @@ export default function MainApp() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#F9FAFB',
   },
   container: {
-    padding: 24,
-    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   greeting: {
     fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
+    color: '#6B7280',
+    marginBottom: 2,
   },
   name: {
     fontSize: 20,
@@ -261,7 +272,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#E5E7EB',
   },
   logoutText: {
     fontSize: 14,
@@ -275,14 +286,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    height: 44,
-    borderRadius: 8,
+    height: 46,
+    borderRadius: 10,
     backgroundColor: '#111827',
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionButtonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -293,13 +304,13 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   heroTitle: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   heroSubtitle: {
-    color: '#d1d5db',
+    color: '#D1D5DB',
     fontSize: 15,
   },
   sectionTitle: {
@@ -309,18 +320,38 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   productList: {
-    gap: 16,
+    gap: 20,
   },
   productCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  productImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 14,
+    backgroundColor: '#E2E8F0',
+  },
+  imagePlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#94A3B8',
+    fontSize: 14,
   },
   productName: {
     fontSize: 17,
     fontWeight: '600',
     color: '#111827',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   productPrice: {
     fontSize: 16,
@@ -331,14 +362,15 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     gap: 10,
+    marginBottom: 10,
   },
   wishlistButton: {
     flex: 1,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#111827',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -350,13 +382,27 @@ const styles = StyleSheet.create({
   addButton: {
     flex: 1,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: '#111827',
     alignItems: 'center',
     justifyContent: 'center',
   },
   addButtonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  reviewsButton: {
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reviewsButtonText: {
+    color: '#B45309',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -368,26 +414,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: '#dc2626',
+    color: '#DC2626',
     fontSize: 15,
   },
   emptyText: {
-    color: '#6b7280',
+    color: '#6B7280',
     fontSize: 15,
-  },
-  detailImage: {
-    width: '100%',
-    height: 280,
-    borderRadius: 16,
-    marginBottom: 20,
-    backgroundColor: '#E2E8F0',
-  },
-  imagePlaceholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#94A3B8',
-    fontSize: 14,
   },
 });

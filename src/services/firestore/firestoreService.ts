@@ -209,3 +209,77 @@ export const fetchWishListProducts = async (productIds: string[]) => {
     throw error;
   }
 };
+
+
+
+
+// --- REVIEWS ----
+export const fetchReviews = async (productId: string) => {
+  try {
+    const reviewRef = doc(db, 'Review', productId);
+    const reviewSnap = await getDoc(reviewRef);
+
+    if (reviewSnap.exists()) {
+      const data = reviewSnap.data();
+      return {
+        id: reviewSnap.id,
+        items: data.items || [],
+        ...data,
+      };
+    }
+
+    return { id: productId, items: [] }; // return empty array if no reviews yet
+  } catch (error) {
+    console.error('Error loading product reviews: ', error);
+    throw error;
+  }
+};
+
+export const addReview = async (
+  userId: string,
+  productId: string,
+  comment: string,
+  rating: number
+) => {
+  try {
+    if (rating < 1 || rating > 5) {
+      throw new Error('Rating must be between 1 and 5');
+    }
+
+    const reviewRef = doc(db, 'Review', productId);
+    const reviewSnap = await getDoc(reviewRef);
+
+    const newItem = {
+      userId,
+      comment: comment.trim(),
+      rating,
+      addedAt: Timestamp.now(),
+    };
+
+    if (!reviewSnap.exists()) {
+      await setDoc(reviewRef, {
+        productId,
+        items: [newItem],
+        updatedAt: Timestamp.now(),
+      });
+    } else {
+      const data = reviewSnap.data();
+      const alreadyExists = data?.items?.some(
+        (item: any) => item.userId === userId
+      );
+
+      if (alreadyExists) {
+        console.log('You have already reviewed this product');
+        return;
+      }
+
+      await updateDoc(reviewRef, {
+        items: arrayUnion(newItem),
+        updatedAt: Timestamp.now(),
+      });
+    }
+  } catch (error) {
+    console.error('Error adding review: ', error);
+    throw error;
+  }
+};
