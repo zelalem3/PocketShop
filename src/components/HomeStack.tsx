@@ -6,6 +6,7 @@ import ProductDetailScreen from '../features/products/Screens/productDetail';
 import Checkout from '../features/orders/Screens/Checkout';
 import PaymentSuccess from '../features/orders/Screens/PaymentSuccess';
 import WishListScreen from '../features/wishlist/Screens/wishListScreen';
+import ReviewScreen from '../features/reviews/Screens/ReviewScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +40,7 @@ export default function HomeStack() {
       name="WishList"
       component={WishListScreen}
       />
+      <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
 
     </Stack.Navigator>
   );
