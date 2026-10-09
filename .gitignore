@@ -80,3 +80,13 @@ GoogleService-Info.plist
 
 # env
 .env
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# Backend secrets
+**/appsettings.Development.json
+**/secrets.json
