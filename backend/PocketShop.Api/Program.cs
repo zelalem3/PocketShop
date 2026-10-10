@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using PocketShop.Api.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,7 +19,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseHttpsRedirection(); 
 }
-
+app.MapGet("/up", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+app.MapGet("/", () => new { message = "Welcome to PocketShop API!", status = "running" });
 
 
 app.UseAuthorization();
