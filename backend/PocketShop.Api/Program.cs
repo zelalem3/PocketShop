@@ -6,7 +6,16 @@ using PocketShop.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // -------------------- Services --------------------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Prevent infinite loops: Category → Products → Category → ...
+        options.JsonSerializerOptions.ReferenceHandler = 
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        
+        options.JsonSerializerOptions.DefaultIgnoreCondition = 
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -37,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 
 // PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
