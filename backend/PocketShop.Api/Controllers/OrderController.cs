@@ -17,7 +17,6 @@ public class OrdersController : ControllerBase
         _context = context;
     }
 
-    // Helper – gets the Firebase UID from the verified token
     private string? GetFirebaseUid() =>
         User.FindFirstValue("firebase_uid") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
 
