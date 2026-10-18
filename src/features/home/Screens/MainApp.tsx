@@ -10,15 +10,13 @@ import {
   View,
   Image,
 } from 'react-native';
+import { addToCart } from '../../../services/firestore/firestoreService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  addToWishList,
-  fetchProducts,
-  addToCart,
-} from '../../../services/firestore/firestoreService';
+
 import { useAuthStore } from '../../../store/authStore';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
+import { productsApi } from '../../../services/api/productsApi';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -36,22 +34,14 @@ export default function MainApp() {
   const [wishlistAddingId, setWishlistAddingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setProductsLoading(true);
-        setError(null);
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (err) {
-        console.error('Failed to fetch products:', err);
-        setError('Failed to load products');
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-
-    loadProducts();
-  }, []);
+    // setProductsLoading(true)
+  productsApi
+    .getAll()
+    .then(setProducts)
+    .catch(err => {
+      setError(err.message || 'Failed to load products');
+    });
+}, []);
 
   // ─── Regular functions ────────────────────────────────────────────
   const handleAddToCart = async (product: any) => {
@@ -85,7 +75,7 @@ export default function MainApp() {
 
     try {
       setWishlistAddingId(product.id);
-      await addToWishList(user.uid, product.id);
+      // await addToWishList(user.uid, product.id);
       Alert.alert('Success', `${product.name} added to wishlist`);
     } catch (err) {
       console.error('Error adding to wishlist:', err);
