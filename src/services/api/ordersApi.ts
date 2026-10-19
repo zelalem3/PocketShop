@@ -15,13 +15,13 @@ export interface CreateOrder {
     TotalPrice: number;
 }
 
-export const OrderApi = { // (Optional: renaming to OrderApi helps avoid naming conflicts with the Order interface)
+export const OrderApi = {
     async getOrderByUserId(): Promise<Order[]> {
         const response = await apiClient.get<Order[]>(`/api/orders/me`);
         return response.data;
     },
     async createorder(order: CreateOrder): Promise<Order> {
-        const response = await apiClient.post<Order>(`/api/Orders`, order); // Added the 's' here!
+        const response = await apiClient.post<Order>(`/api/Orders`, order); 
         return response.data;
     }
 }
