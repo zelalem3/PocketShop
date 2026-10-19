@@ -11,22 +11,22 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { useAuthStore } from '../../../store/authStore';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
-import { fetchReviews } from '../../../services/firestore/firestoreService'; // adjust path
+import { ReviewApi } from '../../../services/api/reviewsApi';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 type ReviewScreenRouteProp = RouteProp<MainStackParamList, 'ReviewScreen'>;
 
 interface ReviewItem {
+  id: number;
   userId: string;
+  productId: number;
   comment: string;
   rating: number;
-  addedAt: any;
+  createdAt: string;
 }
 
 export default function ReviewScreen() {
-  // ─── ALL HOOKS FIRST ───────────────────────────────────────────────
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ReviewScreenRouteProp>();
   const { productId } = route.params;
@@ -35,15 +35,14 @@ export default function ReviewScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── Fetch Reviews ─────────────────────────────────────────────────
   useEffect(() => {
     const loadReviews = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await fetchReviews(productId);
-        setReviews(data.items || []);
+        const data = await ReviewApi.getReviewsByProduct(Number(productId));
+        setReviews(data || []);
       } catch (err) {
         console.error('Error loading reviews:', err);
         setError('Failed to load reviews');
@@ -57,12 +56,10 @@ export default function ReviewScreen() {
     }
   }, [productId]);
 
-  // ─── Helper ────────────────────────────────────────────────────────
   const renderStars = (rating: number) => {
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   };
 
-  // ─── Render ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -75,7 +72,6 @@ export default function ReviewScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backText}>← Back</Text>
@@ -95,7 +91,7 @@ export default function ReviewScreen() {
       ) : (
         <FlatList
           data={reviews}
-          keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <View style={styles.reviewCard}>
@@ -107,8 +103,8 @@ export default function ReviewScreen() {
               <Text style={styles.comment}>{item.comment}</Text>
 
               <Text style={styles.meta}>
-                {item.addedAt?.toDate
-                  ? item.addedAt.toDate().toLocaleDateString()
+                {item.createdAt
+                  ? new Date(item.createdAt).toLocaleDateString()
                   : 'Recently'}
               </Text>
             </View>
@@ -118,6 +114,7 @@ export default function ReviewScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   safeArea: {
