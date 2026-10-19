@@ -17,7 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthStore } from '../../../store/authStore';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
 import { productsApi } from '../../../services/api/productsApi';
-
+import { getAuth } from '@react-native-firebase/auth';
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function MainApp() {
@@ -33,23 +33,41 @@ export default function MainApp() {
   const [addingId, setAddingId] = useState<string | null>(null);
   const [wishlistAddingId, setWishlistAddingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setProductsLoading(true);
-        setError(null);
-        const data = await productsApi.getAll();
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        console.error('Failed to fetch products:', err);
-        setError(err?.message || 'Failed to load products');
-      } finally {
-        setProductsLoading(false);
-      }
-    };
+  
+useEffect(() => {
+  try {
+    const firebaseAuth = getAuth();
 
-    loadProducts();
-  }, []);
+    console.log('Firebase Auth initialized:', !!firebaseAuth);
+    console.log('Firebase app:', firebaseAuth.app.name);
+    console.log(
+      'Current user:',
+      firebaseAuth.currentUser?.uid ?? 'Not signed in',
+    );
+  } catch (error) {
+    console.error('Firebase Auth test failed:', error);
+  }
+}, []);
+
+useEffect(() => {
+  const loadProducts = async () => {
+    try {
+      setProductsLoading(true);
+      setError(null);
+
+      const data = await productsApi.getAll();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      console.error('Failed to fetch products:', err);
+      setError(err?.message || 'Failed to load products');
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  loadProducts();
+}, []);
+
 
   // ─── Regular functions ────────────────────────────────────────────
   const handleAddToCart = async (product: any) => {

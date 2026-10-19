@@ -15,13 +15,10 @@ import {
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
-import {
-  fetchProductDetail,
-  fetchReviews,
-  addReview,
-} from '../../../services/firestore/firestoreService';
 import { useAuthStore } from '../../../store/authStore';
 import { apiClient } from '../../../services/api/apiClient';
+import { ReviewApi } from '../../../services/api/reviewsApi';
+
 
 type Route = RouteProp<MainStackParamList, 'ProductDetail'>;
 
@@ -72,8 +69,9 @@ export default function ProductDetailScreen() {
   const loadReviews = async () => {
     try {
       setReviewsLoading(true);
-      const data = await fetchReviews(params.productId);
-      setReviews(data.items || []);
+      const data = await ReviewApi.getReviewsByProduct(Number(params.productId));
+      setReviews(data || []);
+      
     } catch (err) {
       console.error('Error loading reviews:', err);
     } finally {
@@ -101,7 +99,11 @@ export default function ProductDetailScreen() {
 
     try {
       setSubmitting(true);
-      await addReview(user.uid, params.productId, comment, rating);
+      await ReviewApi.createReview({
+  productId: Number(params.productId),
+  comment: comment.trim(),
+  rating,
+});
       Alert.alert('Success', 'Review added successfully');
       setComment('');
       setRating(5);
