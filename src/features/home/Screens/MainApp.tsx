@@ -34,14 +34,22 @@ export default function MainApp() {
   const [wishlistAddingId, setWishlistAddingId] = useState<string | null>(null);
 
   useEffect(() => {
-    // setProductsLoading(true)
-  productsApi
-    .getAll()
-    .then(setProducts)
-    .catch(err => {
-      setError(err.message || 'Failed to load products');
-    });
-}, []);
+    const loadProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setError(null);
+        const data = await productsApi.getAll();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error('Failed to fetch products:', err);
+        setError(err?.message || 'Failed to load products');
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   // ─── Regular functions ────────────────────────────────────────────
   const handleAddToCart = async (product: any) => {
