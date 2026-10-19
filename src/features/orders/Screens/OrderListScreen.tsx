@@ -1,4 +1,4 @@
-// src/features/orders/Screens/OrderListScreen.tsx
+
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
@@ -14,9 +14,9 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuthStore } from '../../../store/authStore';
-import { getUserOrders } from '../../../services/order/orderService';
 import { Order } from '../../../services/order/types';
 import { MainStackParamList } from '../../../navigation/MainNavigator';
+import { OrderApi } from '../../../services/api/ordersApi';
 
 type Nav = NativeStackNavigationProp<MainStackParamList, 'OrderList'>;
 
@@ -30,14 +30,21 @@ export default function OrderListScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const loadOrders = useCallback(async () => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setOrders([]);
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     try {
       setError(null);
-      const data = await getUserOrders(user.uid);
-      setOrders(data);
+
+      const result = await OrderApi.getOrderByUserId();
+      setOrders(result);
     } catch (e) {
-      console.error(e);
-      setError('Failed to load orders');
+      console.error('Failed to load orders:', e);
+      setError('Failed to load orders. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -51,66 +58,84 @@ export default function OrderListScreen() {
     }, [loadOrders]),
   );
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadOrders();
-  };
+  }, [loadOrders]);
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#111827" />
-      </View>
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#111827" />
+          <Text style={styles.helperText}>Loading your orders...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.safe}>
-      <FlatList
-        data={orders}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={styles.empty}>No orders yet</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate('OrderDetail', { orderId: item.id })
-            }
-          >
-            <View style={styles.row}>
-              <Text style={styles.ref}>#{item.merchantReference}</Text>
-              <Text
-                style={[
-                  styles.status,
-                  item.paymentStatus === 'paid' && styles.paid,
-                  item.paymentStatus === 'failed' && styles.failed,
-                ]}
-              >
-                {item.paymentStatus.toUpperCase()}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Pressable style={styles.retryButton} onPress={loadOrders}>
+            <Text style={styles.retryText}>Try Again</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={[
+            styles.list,
+            orders.length === 0 && styles.emptyList,
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={styles.empty}>No orders yet</Text>
+              <Text style={styles.helperText}>
+                Your orders will appear here after you make a purchase.
               </Text>
             </View>
-            <Text style={styles.date}>
-              {item.createdAt?.toDate
-                ? item.createdAt.toDate().toLocaleDateString()
-                : '—'}
-            </Text>
-            <Text style={styles.total}>
-              ETB {item.total.toLocaleString()}
-            </Text>
-            <Text style={styles.items}>
-              {item.items.length} item{item.items.length > 1 ? 's' : ''}
-            </Text>
-          </Pressable>
-        )}
-      />
+          }
+          renderItem={({ item }) => (
+            <Pressable
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate('OrderDetail', {
+                  orderId: item.id,
+                })
+              }
+            >
+              <View style={styles.row}>
+                <Text style={styles.ref}>Order #{item.id}</Text>
+                <Text style={styles.status}>PLACED</Text>
+              </View>
+
+              <Text style={styles.date}>
+                {item.createdAt
+                  ? new Date(item.createdAt).toLocaleDateString()
+                  : 'Date unavailable'}
+              </Text>
+
+              <Text style={styles.total}>
+                ETB {item.totalPrice.toLocaleString()}
+              </Text>
+
+              <Text style={styles.items}>
+                Product #{item.productId} · Quantity: {item.quantity}
+              </Text>
+            </Pressable>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -131,12 +156,14 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 32,
   },
+  emptyList: {
+    flexGrow: 1,
+  },
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
-    // Soft shadow
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -165,16 +192,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#F1F5F9',
-    color: '#64748B',
-  },
-  paid: {
-    backgroundColor: '#DCFCE7',
-    color: '#15803D',
-  },
-  failed: {
-    backgroundColor: '#FEE2E2',
-    color: '#B91C1C',
+    backgroundColor: '#DBEAFE',
+    color: '#1D4ED8',
   },
   date: {
     fontSize: 13,
@@ -189,12 +208,40 @@ const styles = StyleSheet.create({
   },
   items: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   empty: {
     fontSize: 16,
-    color: '#94A3B8',
-    fontWeight: '500',
+    color: '#64748B',
+    fontWeight: '600',
     textAlign: 'center',
+  },
+  helperText: {
+    fontSize: 13,
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  errorText: {
+    fontSize: 15,
+    color: '#B91C1C',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#111827',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });
