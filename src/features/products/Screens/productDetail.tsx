@@ -21,6 +21,7 @@ import {
   addReview,
 } from '../../../services/firestore/firestoreService';
 import { useAuthStore } from '../../../store/authStore';
+import { apiClient } from '../../../services/api/apiClient';
 
 type Route = RouteProp<MainStackParamList, 'ProductDetail'>;
 
@@ -46,20 +47,15 @@ export default function ProductDetailScreen() {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // ─── Load Product ────────────────────────────────────────────────
+    // ─── Load Product ────────────────────────────────────────────────
   useEffect(() => {
     const loadProduct = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await fetchProductDetail(params.productId);
-
-        if (!data) {
-          setError('Product not found');
-        } else {
-          setProduct(data);
-        }
+        const response = await apiClient.get(`/api/Products/${params.productId}`);
+        setProduct(response.data);
       } catch (err) {
         console.error(err);
         setError('Failed to load product');
@@ -68,9 +64,10 @@ export default function ProductDetailScreen() {
       }
     };
 
-    loadProduct();
+    if (params.productId) {
+      loadProduct();
+    }
   }, [params.productId]);
-
   // ─── Load Reviews ────────────────────────────────────────────────
   const loadReviews = async () => {
     try {
@@ -183,7 +180,7 @@ export default function ProductDetailScreen() {
           <Text style={styles.value}>{product.stockQuantity}</Text>
 
           <Text style={styles.label}>Category</Text>
-          <Text style={styles.value}>{product.category}</Text>
+          <Text style={styles.value}>{product.category?.name ?? 'Uncategorized'}</Text>
 
           {/* ═══════════════ REVIEWS SECTION ═══════════════ */}
           <View style={styles.divider} />
